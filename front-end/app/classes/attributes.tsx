@@ -33,6 +33,45 @@ export default class Attributes{
     public get age(): number{
         return this._age
     }
+    public get level(): number{
+        return this._level
+    }
+    public get exp(): number{
+        return this._exp
+    }
+    public get overall(): number{
+        return this._overall
+    }
+    public get power(): number{
+        return this._power
+    }
+    public get accuracy(): number{
+        return this._accuracy
+    }
+    public get speed(): number{
+        return this._speed
+    }
+    public get strength(): number{
+        return this._strength
+    }
+    public get endurance(): number{
+        return this._endurance
+    }
+    public get powerPotential(): number{
+        return this._powerPotential
+    }
+    public get accuracyPotential(): number{
+        return this._accuracyPotential
+    }
+    public get speedPotential(): number{
+        return this._speedPotential
+    }
+    public get strengthPotential(): number{
+        return this._strengthPotential
+    }
+    public get endurancePotential(): number{
+        return this._endurancePotential
+    }
     public set age(value: number){
         this._age = value
     }
