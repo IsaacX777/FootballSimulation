@@ -25,7 +25,6 @@ export default function Playerlist() {
         tempMap.set(position, !openPosition.get(position))
         setOpenPosition(tempMap)
     }
-
     return(
         <div>
             {Array.from(roster.keys()).map((position: string) => (

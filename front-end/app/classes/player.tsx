@@ -1,5 +1,6 @@
 import Contract from "./contract"
 import Stats from "./stats"
+import Attributes from "./attributes"
 
 export default class Player{
     private _name: string
@@ -7,11 +8,13 @@ export default class Player{
     private _contract: Contract
     private _stats: Stats[][]
     private _injuryWeeks: number
+    private _attributes: Attributes
 
-    public constructor(name: string, position: string, contract: Contract){
+    public constructor(name: string, position: string, contract: Contract, attributes: Attributes){
         this._name = name
         this._position = position
         this._contract = contract
+        this._attributes = attributes
         this._stats = new Array<Stats[]>()
         this._injuryWeeks = 0
     }
@@ -23,6 +26,9 @@ export default class Player{
     }
     public get contract(): Contract{
         return this._contract
+    }
+    public get attributes(): Attributes{
+        return this._attributes
     }
     public get stats(): Stats[][]{
         return this._stats

@@ -3,29 +3,29 @@ export default class Attributes{
     private _level: number
     private _exp: number
     private _overall: number
-    private _power: number
-    private _accuracy: number
+    //QB: throwing accuracy, WR & RB & TE: catching, OL: blocking, DL: tackling, LB & CB & S: coverage, K & P: kick accuracy
+    private _skill: number
     private _speed: number
+    //QB: throwing power, K & P: kick power
     private _strength: number
     private _endurance: number
-    private _powerPotential: number
-    private _accuracyPotential: number
+    private _overallPotential: number
+    private _skillPotential: number
     private _speedPotential: number
     private _strengthPotential: number
     private _endurancePotential: number
 
-    public constructor(age: number, overall: number, power: number, accuracy: number, speed: number, strength: number, endurance: number, powerPotential: number, accuracyPotential: number, speedPotential: number, strengthPotential: number, enduracePotential: number){
+    public constructor(age: number, skill: number, speed: number, strength: number, endurance: number, skillPotential: number, speedPotential: number, strengthPotential: number, enduracePotential: number){
         this._age = age
         this._level = 1
         this._exp = 0
-        this._overall = overall
-        this._power = power
-        this._accuracy = accuracy
+        this._overall = Math.round((skill + speed + strength + endurance) / 4)
+        this._skill = skill
         this._speed = speed
         this._strength = strength
         this._endurance = endurance
-        this._powerPotential = powerPotential
-        this._accuracyPotential = accuracyPotential
+        this._overallPotential = Math.round((skillPotential + speedPotential + strengthPotential + enduracePotential) / 4)
+        this._skillPotential = skillPotential
         this._speedPotential = speedPotential
         this._strengthPotential = strengthPotential
         this._endurancePotential = enduracePotential
@@ -42,11 +42,8 @@ export default class Attributes{
     public get overall(): number{
         return this._overall
     }
-    public get power(): number{
-        return this._power
-    }
-    public get accuracy(): number{
-        return this._accuracy
+    public get skill(): number{
+        return this._skill
     }
     public get speed(): number{
         return this._speed
@@ -57,11 +54,8 @@ export default class Attributes{
     public get endurance(): number{
         return this._endurance
     }
-    public get powerPotential(): number{
-        return this._powerPotential
-    }
-    public get accuracyPotential(): number{
-        return this._accuracyPotential
+    public get skillPotential(): number{
+        return this._skillPotential
     }
     public get speedPotential(): number{
         return this._speedPotential
@@ -79,11 +73,11 @@ export default class Attributes{
         if(this._exp >= 100 * 1.1**(this._level - 1)){
             this._exp -= 100 * 1.1**(this._level - 1)
             this._level ++
-            this._power += (this._powerPotential - this._power) / 9
-            this._accuracy += (this._accuracyPotential - this._accuracy) / 9
+            this._skill += (this._skillPotential - this._skill) / 9
             this._speed += (this._speedPotential - this._speed) / 9
             this._strength += (this._strengthPotential - this._strength) / 9
             this._endurance += (this._endurancePotential - this._endurance) / 9
+            this._overall = (this._skill + this._speed + this._strength + this._endurance) / 4
         }
     }
 }
