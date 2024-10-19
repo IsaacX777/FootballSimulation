@@ -6,7 +6,7 @@ import { auth } from "../../firebase/config"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "firebase/auth"
 
-export default function Roster() {
+export default function Register() {
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')

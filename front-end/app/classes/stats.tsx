@@ -71,4 +71,41 @@ export default class Stats{
     public get passingYD(): number{
         return this._passingYD
     }
+    public toObject(){
+        return{
+            passingYD: this._passingYD,
+            passingTD: this._passingTD,
+            intsThrown: this._intsThrown,
+            passingATT: this._passingATT,
+            completions: this._completions,
+            rushingYD: this._rushingYD,
+            rushingTD: this._rushingTD,
+            rushingATT: this._rushingATT,
+            fumbles: this._fumbles,
+            targets: this._targets,
+            receptions: this._receptions,
+            receivengYD: this._receivengYD,
+            receivengTD: this._receivengTD,
+            blockWinRate: this._blockWinRate,
+            sacksAllowed: this._sacksAllowed,
+            tackles: this._tackles,
+            sacks: this._sacks,
+            defensiveTD: this._defensiveTD,
+            interceptions: this._interceptions,
+            forcedFumbles: this._forcedFumbles,
+            fumbleRecoveries: this._fumbleRecoveries,
+            extraPointATT: this._extraPointATT,
+            extraPointGood: this._extraPointGood,
+            fieldGoalATT: this._fieldGoalATT,
+            fieldGoalGood: this._fieldGoalGood,
+            puntATT: this._puntATT,
+            puntYD: this._puntYD,
+            kickReturnATT: this._kickReturnATT,
+            kickReturnYD: this._kickReturnYD,
+            kickReturnTD: this._kickReturnTD,
+            puntReturnATT: this._puntReturnATT,
+            puntReturnYD: this._puntReturnYD,
+            puntReturnTD: this._puntReturnTD
+        }
+    }
 }

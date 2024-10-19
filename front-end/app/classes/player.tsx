@@ -6,7 +6,7 @@ export default class Player{
     private _name: string
     private _position: string
     private _contract: Contract
-    private _stats: Stats[][]
+    private _stats: Map<number, Map<string, Stats>>
     private _injuryWeeks: number
     private _attributes: Attributes
 
@@ -15,7 +15,7 @@ export default class Player{
         this._position = position
         this._contract = contract
         this._attributes = attributes
-        this._stats = new Array<Stats[]>()
+        this._stats = new Map<number, Map<string, Stats>>()
         this._injuryWeeks = 0
     }
     public get name(): string{
@@ -30,7 +30,7 @@ export default class Player{
     public get attributes(): Attributes{
         return this._attributes
     }
-    public get stats(): Stats[][]{
+    public get stats(): Map<number, Map<string, Stats>>{
         return this._stats
     }
     public get injuryWeeks(): number{
@@ -48,10 +48,33 @@ export default class Player{
     public set injuryWeeks(value: number){
         this._injuryWeeks = value
     }
-    public addStats(value: Stats, newSeason: boolean){
-        if(newSeason){
-            this._stats.push(new Array<Stats>())
+    public addStats(value: Stats, season: number, opponent: string){
+        if(!this._stats.has(season)){
+            this._stats.set(season, new Map<string, Stats>())
         }
-        this._stats[this._stats.length - 1].push(value)
+        this._stats.get(season)!.set(opponent, value)
+    }
+    public toObject(){
+        const convertStats = (map: Map<number, Map<string, Stats>>) => {
+            return Object.fromEntries(
+                Array.from(map.entries()).map(([key, statsMap]) => [
+                    key, 
+                    Object.fromEntries(
+                        Array.from(statsMap.entries()).map(([innerKey, stats]) => [
+                            innerKey,
+                            stats.toObject()
+                        ])
+                    )
+                ])
+            )
+        }
+        return{
+            name: this._name,
+            position: this._position,
+            contract: this._contract.toObject(),
+            careerStats: convertStats(this.stats),
+            injuryWeeks: this._injuryWeeks,
+            attributes: this._attributes.toObject()
+        }
     }
 }

@@ -80,4 +80,21 @@ export default class Attributes{
             this._overall = (this._skill + this._speed + this._strength + this._endurance) / 4
         }
     }
+    public toObject(){
+        return{
+            age: this._age,
+            level: this._level,
+            exp: this._exp,
+            overall: this._overall,
+            skill: this._skill,
+            speed: this._speed,
+            strength: this._strength,
+            endurance: this._endurance,
+            overallPotential: this._overallPotential,
+            skillPotential: this._skillPotential,
+            speedPotential: this._speedPotential,
+            strengthPotential: this._strengthPotential,
+            endurancePotential: this._endurancePotential
+        }
+    }
 }

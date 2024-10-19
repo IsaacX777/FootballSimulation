@@ -26,4 +26,11 @@ export default class Contract{
     public set endYear(value: number){
         this._endYear = value
     }
+    public toObject(){
+        return{
+            salary: this._salary,
+            years: this._years,
+            endYear: this._endYear
+        }
+    }
 }
