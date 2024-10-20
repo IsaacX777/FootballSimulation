@@ -10,8 +10,8 @@ export default class Stats{
     private _fumbles: number
     private _targets: number
     private _receptions: number
-    private _receivengYD: number
-    private _receivengTD: number
+    private _receivingYD: number
+    private _receivingTD: number
     private _blockWinRate: number
     private _sacksAllowed: number
     private _tackles: number
@@ -33,40 +33,40 @@ export default class Stats{
     private _puntReturnYD: number
     private _puntReturnTD: number
 
-    public constructor(stats: number[]){
-        this._passingYD = stats[0]
-        this._passingTD = stats[1]
-        this._intsThrown = stats[2]
-        this._passingATT = stats[3]
-        this._completions = stats[4]
-        this._rushingYD = stats[5]
-        this._rushingTD = stats[6]
-        this._rushingATT = stats[7]
-        this._fumbles = stats[8]
-        this._targets = stats[9]
-        this._receptions = stats[10]
-        this._receivengYD = stats[11]
-        this._receivengTD = stats[12]
-        this._blockWinRate = stats[13]
-        this._sacksAllowed = stats[14]
-        this._tackles = stats[15]
-        this._sacks = stats[16]
-        this._defensiveTD = stats[17]
-        this._interceptions = stats[18]
-        this._forcedFumbles = stats[19]
-        this._fumbleRecoveries = stats[20]
-        this._extraPointATT = stats[21]
-        this._extraPointGood = stats[22]
-        this._fieldGoalATT = stats[23]
-        this._fieldGoalGood = stats[24]
-        this._puntATT = stats[25]
-        this._puntYD = stats[26]
-        this._kickReturnATT = stats[27]
-        this._kickReturnYD = stats[28]
-        this._kickReturnTD = stats[29]
-        this._puntReturnATT = stats[30]
-        this._puntReturnYD = stats[31]
-        this._puntReturnTD = stats[32]
+    public constructor(passingYD: number, passingTD: number, intsThrown: number, passingATT: number, completions: number, rushingYD: number, rushingTD: number, rushingATT: number, fumbles: number, targets: number, receptions: number, receivingYD: number, receivingTD: number, blockWinRate: number, sacksAllowed: number, tackles: number, sacks: number, defensiveTD: number, interceptions: number, forcedFumbles: number, fumbleRecoveries: number, extraPointATT: number, extraPointGood: number, fieldGoalATT: number, fieldGoalGood: number, puntATT: number, puntYD: number, kickReturnATT: number, kickReturnYD: number, kickReturnTD: number, puntReturnATT: number, puntReturnYD: number, puntReturnTD: number){
+        this._passingYD = passingYD
+        this._passingTD = passingTD
+        this._intsThrown = intsThrown
+        this._passingATT = passingATT
+        this._completions = completions
+        this._rushingYD = rushingYD
+        this._rushingTD = rushingTD
+        this._rushingATT = rushingATT
+        this._fumbles = fumbles
+        this._targets = targets
+        this._receptions = receptions
+        this._receivingYD = receivingYD
+        this._receivingTD = receivingTD
+        this._blockWinRate = blockWinRate
+        this._sacksAllowed = sacksAllowed
+        this._tackles = tackles
+        this._sacks = sacks
+        this._defensiveTD = defensiveTD
+        this._interceptions = interceptions
+        this._forcedFumbles = forcedFumbles
+        this._fumbleRecoveries = fumbleRecoveries
+        this._extraPointATT = extraPointATT
+        this._extraPointGood = extraPointGood
+        this._fieldGoalATT = fieldGoalATT
+        this._fieldGoalGood = fieldGoalGood
+        this._puntATT = puntATT
+        this._puntYD = puntYD
+        this._kickReturnATT = kickReturnATT
+        this._kickReturnYD = kickReturnYD
+        this._kickReturnTD = kickReturnTD
+        this._puntReturnATT = puntReturnATT
+        this._puntReturnYD = puntReturnYD
+        this._puntReturnTD = puntReturnTD
     }
     public get passingYD(): number{
         return this._passingYD
@@ -84,8 +84,8 @@ export default class Stats{
             fumbles: this._fumbles,
             targets: this._targets,
             receptions: this._receptions,
-            receivengYD: this._receivengYD,
-            receivengTD: this._receivengTD,
+            receivengYD: this._receivingYD,
+            receivengTD: this._receivingTD,
             blockWinRate: this._blockWinRate,
             sacksAllowed: this._sacksAllowed,
             tackles: this._tackles,

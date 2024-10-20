@@ -9,7 +9,6 @@ import {auth} from '../firebase/config'
 import { signOut } from 'firebase/auth'
 import { useRouter } from "next/navigation"
 
-
 export default function Navbar() {
     const [fileOpen, setFileOpen] = useState(false)
     const [playOpen, setPlayOpen] = useState(false)

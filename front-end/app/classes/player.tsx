@@ -6,7 +6,7 @@ export default class Player{
     private _name: string
     private _position: string
     private _contract: Contract
-    private _stats: Map<number, Map<string, Stats>>
+    private _stats: Map<string, Map<string, Stats>>
     private _injuryWeeks: number
     private _attributes: Attributes
 
@@ -15,7 +15,7 @@ export default class Player{
         this._position = position
         this._contract = contract
         this._attributes = attributes
-        this._stats = new Map<number, Map<string, Stats>>()
+        this._stats = new Map<string, Map<string, Stats>>()
         this._injuryWeeks = 0
     }
     public get name(): string{
@@ -30,7 +30,7 @@ export default class Player{
     public get attributes(): Attributes{
         return this._attributes
     }
-    public get stats(): Map<number, Map<string, Stats>>{
+    public get stats(): Map<string, Map<string, Stats>>{
         return this._stats
     }
     public get injuryWeeks(): number{
@@ -48,14 +48,17 @@ export default class Player{
     public set injuryWeeks(value: number){
         this._injuryWeeks = value
     }
-    public addStats(value: Stats, season: number, opponent: string){
+    public set stats(value: Map<string, Map<string, Stats>>){
+        this._stats = value
+    }
+    public addStats(value: Stats, season: string, opponent: string){
         if(!this._stats.has(season)){
             this._stats.set(season, new Map<string, Stats>())
         }
         this._stats.get(season)!.set(opponent, value)
     }
     public toObject(){
-        const convertStats = (map: Map<number, Map<string, Stats>>) => {
+        const convertStats = (map: Map<string, Map<string, Stats>>) => {
             return Object.fromEntries(
                 Array.from(map.entries()).map(([key, statsMap]) => [
                     key, 

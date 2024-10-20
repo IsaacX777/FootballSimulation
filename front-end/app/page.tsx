@@ -4,11 +4,13 @@ import Navbar from "./navbar"
 import {useAuthState} from "react-firebase-hooks/auth"
 import {auth} from '../firebase/config'
 import {useCollection} from "react-firebase-hooks/firestore"
-import { collection, getFirestore, setDoc, getDoc, doc } from "firebase/firestore"
+import { collection, getFirestore, setDoc, getDoc, doc, updateDoc } from "firebase/firestore"
 import Player from "./classes/player"
 import Contract from "./classes/contract"
 import Attributes from "./classes/attributes"
 import { useState, useEffect } from "react"
+import { useAppContext } from "./context"
+import Stats from "./classes/stats"
 
 export default function Home() {
   const [user] = useAuthState(auth)
@@ -16,13 +18,27 @@ export default function Home() {
   const [users, usersLoading, usersError] = useCollection(collection(firestore, "users"), {
     snapshotListenOptions: { includeMetadataChanges: true },
   })
-  const [saves, setSaves] = useState<string[]>([])
+  const [saves, setSaves] = useState<Map<string, Map<string, string>>>(new Map())
   const [saveName, setSaveName] = useState("")
+  const [error, setError] = useState<string|null>(null)
+  const [showTeamPicker, setShowTeamPicker] = useState(false)
+  const {teams, roster, setRoster, starters, setStarters, usedNames, setUsedNames} = useAppContext()
+  const [selectedTeam, setSelectedTeam] = useState<string|null>(null)
+  const [saveSelected, setSaveSelected] = useState(false)
+
+  const openTeamPicker = () => {
+    if(Array.from(saves.keys()).includes(saveName)){
+      setError("saveError")
+      return
+    }
+    setShowTeamPicker(true)
+  }
 
   const setSavesDocument = async () => {
-    /*if(saves.includes(saveName)){
+    if(selectedTeam == null){
+      setError("noSelectionError")
       return
-    }*/
+    }
     const convertRoster = (map: Map<string, Player[]>) => {
       return Object.fromEntries(
         Array.from(map.entries()).map(([key, players]) => [
@@ -32,13 +48,47 @@ export default function Home() {
       )
     }
     const docRef = doc(firestore, "users", user!.uid)
-    await setDoc(docRef, {
-      saves : [{
-        saveName: saveName,
-        roster: convertRoster(defaultRoster),
-        usedNames: defaultUsedNames
-      }]
-    }, {merge: true})
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      await updateDoc(docRef, {
+        [`saves.${saveName}`]: {
+          roster: convertRoster(defaultRoster),
+          usedNames: defaultUsedNames,
+          team: selectedTeam
+        }
+      })
+    }
+    else{
+      await setDoc(docRef, {
+        saves: {
+          [saveName]: {
+            roster: convertRoster(defaultRoster),
+            usedNames: defaultUsedNames,
+            team: selectedTeam
+          }
+        }
+      })
+    }
+    var tempSaveNames = new Map(saves)
+    tempSaveNames.set(saveName, new Map<string, string>([["team", selectedTeam]]))
+    const entriesArray = Array.from(tempSaveNames.entries())
+    const sortedEntries = entriesArray.sort((a, b) => a[0].localeCompare(b[0]))
+    setSaves(new Map(sortedEntries))
+    setShowTeamPicker(false)
+    setSaveName("")
+    setSelectedTeam(null)
+  }
+
+  const teamsList = []
+  for(let i = 0; i < 4; i++){
+    teamsList.push(teams.get("AFC")!.get("East")![i])
+    teamsList.push(teams.get("AFC")!.get("West")![i])
+    teamsList.push(teams.get("AFC")!.get("North")![i])
+    teamsList.push(teams.get("AFC")!.get("South")![i])
+    teamsList.push(teams.get("NFC")!.get("East")![i])
+    teamsList.push(teams.get("NFC")!.get("West")![i])
+    teamsList.push(teams.get("NFC")!.get("North")![i])
+    teamsList.push(teams.get("NFC")!.get("South")![i])
   }
 
   const firstNames = ["Jacob", "Michael", "Ethan", "Joshua", "Daniel", "Alexander", "Anthony", "William", "Christopher", "Matthew", "Jayden", "Andrew", "Joseph", "David", "Noah", "Aiden", "James", "Ryan", "Logan", "John", "Nathan", "Elijah", "Christian", "Gabriel", "Benjamin", "Jonathan", "Tyler", "Samuel", "Nicholas", "Gavin", "Dylan", "Jackson", "Brandon", "Caleb", "Mason", "Angel", "Isaac", "Evan", "Jack", "Kevin", "Jose", "Isaiah", "Luke", "Landon", "Justin", "Lucas", "Zachary", "Jordan", "Robert", "Aaron", "Brayden", "Thomas", "Cameron", "Hunter", "Austin", "Adrian", "Connor", "Owen", "Aidan", "Jason", "Julian", "Wyatt", "Charles", "Luis", "Carter", "Juan", "Chase", "Diego", "Jeremiah", "Brody", "Xavier", "Adam", "Carlos", "Sebastian", "Liam", "Hayden", "Nathaniel", "Henry", "Jesus", "Ian", "Tristan", "Bryan", "Sean", "Cole", "Alex", "Eric", "Brian", "Jaden", "Carson", "Blake", "Ayden", "Cooper", "Dominic", "Brady", "Caden", "Josiah", "Kyle", "Colton", "Kaden", "Eli", "Miguel", "Antonio", "Parker", "Steven", "Alejandro", "Riley", "Richard", "Timothy", "Devin", "Jesse", "Victor", "Jake", "Joel", "Colin", "Kaleb", "Bryce", "Levi", "Oliver", "Oscar", "Vincent", "Ashton", "Cody", "Micah", "Preston", "Marcus", "Max", "Patrick", "Seth", "Jeremy", "Peyton", "Nolan", "Ivan", "Damian", "Maxwell", "Alan", "Kenneth", "Jonah", "Jorge", "Mark", "Giovanni", "Eduardo", "Grant", "Collin", "Gage", "Omar", "Emmanuel", "Trevor", "Edward", "Ricardo", "Cristian", "Nicolas", "Kayden", "George", "Jaxon", "Paul", "Braden", "Elias", "Andres", "Derek", "Garrett", "Tanner", "Malachi", "Conner", "Fernando", "Cesar", "Javier", "Miles", "Jaiden", "Alexis", "Leonardo", "Santiago", "Francisco", "Cayden", "Shane", "Edwin", "Hudson", "Travis", "Bryson", "Erick", "Jace", "Hector", "Josue", "Peter", "Jaylen", "Mario", "Manuel", "Abraham", "Grayson", "Damien", "Kaiden", "Spencer", "Stephen", "Edgar", "Wesley", "Shawn", "Trenton", "Jared", "Jeffrey", "Landen", "Johnathan", "Bradley", "Braxton", "Ryder", "Camden", "Roman", "Asher", "Brendan", "Maddox", "Sergio", "Israel", "Andy", "Lincoln", "Erik", "Donovan", "Raymond", "Avery", "Rylan", "Dalton", "Harrison", "Andre", "Martin", "Keegan", "Marco", "Jude", "Sawyer", "Dakota", "Leo", "Calvin", "Kai", "Drake", "Troy", "Zion", "Clayton", "Roberto", "Zane", "Gregory", "Tucker", "Rafael", "Kingston", "Dominick", "Ezekiel", "Griffin", "Devon", "Drew", "Lukas", "Johnny", "Ty", "Pedro", "Tyson", "Caiden", "Mateo", "Braylon", "Cash", "Aden", "Chance", "Taylor", "Marcos", "Maximus", "Ruben", "Emanuel", "Simon", "Corbin", "Brennan", "Dillon", "Skyler", "Myles", "Xander", "Jaxson", "Dawson", "Kameron", "Kyler", "Axel", "Colby", "Jonas", "Joaquin", "Payton", "Brock", "Frank", "Enrique", "Quinn", "Emilio", "Malik", "Grady", "Angelo", "Julio", "Derrick", "Raul", "Fabian", "Corey", "Gerardo", "Dante", "Ezra", "Armando", "Allen", "Theodore", "Gael", "Amir", "Zander", "Adan", "Maximilian", "Randy", "Easton", "Dustin", "Luca", "Phillip", "Julius", "Charlie", "Ronald", "Jakob", "Cade", "Brett", "Trent", "Silas", "Keith", "Emiliano", "Trey", "Jalen", "Darius", "Lane", "Jerry", "Jaime", "Scott", "Graham", "Weston", "Braydon", "Anderson", "Rodrigo", "Pablo", "Saul", "Danny", "Donald", "Elliot", "Brayan", "Dallas", "Lorenzo", "Casey", "Mitchell", "Alberto", "Tristen", "Rowan", "Jayson", "Gustavo", "Aaden", "Amari", "Dean", "Braeden", "Declan", "Chris", "Ismael", "Dane", "Louis", "Arturo", "Brenden", "Felix", "Jimmy", "Cohen", "Tony", "Holden", "Reid", "Abel", "Bennett", "Zackary", "Arthur", "Nehemiah", "Ricky", "Esteban", "Cruz", "Finn", "Mauricio", "Dennis", "Keaton", "Albert", "Marvin", "Mathew", "Larry", "Moises", "Issac", "Philip", "Quentin", "Curtis", "Greyson", "Jameson", "Everett", "Jayce", "Darren", "Elliott", "Uriel", "Alfredo", "Hugo", "Alec", "Jamari", "Marshall", "Walter", "Judah", "Jay", "Lance", "Beau", "Ali", "Landyn", "Yahir", "Phoenix", "Nickolas", "Kobe", "Bryant", "Maurice", "Russell", "Leland", "Colten", "Reed", "Davis", "Joe", "Ernesto", "Desmond", "Kade", "Reece", "Morgan", "Ramon", "Rocco", "Orlando", "Ryker", "Brodie", "Paxton", "Jacoby", "Douglas", "Kristopher", "Gary", "Lawrence", "Izaiah", "Solomon", "Nikolas", "Mekhi", "Justice", "Tate", "Jaydon", "Salvador", "Shaun", "Alvin", "Eddie", "Kane", "Davion", "Zachariah", "Dorian", "Titus", "Kellen", "Camron", "Isiah", "Javon", "Nasir", "Milo", "Johan", "Byron", "Jasper", "Jonathon", "Chad", "Marc", "Kelvin", "Chandler", "Sam", "Cory", "Deandre", "River", "Reese", "Roger", "Quinton", "Talon", "Romeo", "Franklin", "Noel", "Alijah", "Guillermo", "Gunner", "Damon", "Jadon", "Emerson", "Micheal", "Bruce", "Terry", "Kolton", "Melvin", "Beckett", "Porter", "August", "Brycen", "Dayton", "Jamarion", "Leonel", "Karson", "Zayden", "Keagan", "Carl", "Khalil", "Cristopher", "Nelson", "Braiden", "Moses", "Isaias", "Roy", "Triston", "Walker", "Kale", "Jermaine", "Leon", "Rodney", "Kristian", "Mohamed", "Ronan", "Pierce", "Trace", "Warren", "Jeffery", "Maverick", "Cyrus", "Quincy", "Nathanael", "Skylar", "Tommy", "Conor", "Noe", "Ezequiel", "Demetrius", "Jaylin", "Kendrick", "Frederick", "Terrance", "Bobby", "Jamison", "Jon", "Rohan", "Jett", "Kieran", "Tobias", "Ari", "Colt", "Gideon", "Felipe", "Kenny", "Wilson", "Orion", "Kamari", "Gunnar", "Jessie", "Alonzo", "Gianni", "Omari", "Waylon", "Malcolm", "Emmett", "Abram", "Julien", "London", "Tomas", "Allan", "Terrell", "Matteo", "Tristin", "Jairo", "Reginald", "Brent", "Ahmad", "Yandel", "Rene", "Willie", "Boston", "Billy", "Marlon", "Trevon", "Aydan", "Jamal", "Aldo", "Ariel", "Cason", "Braylen", "Javion", "Joey", "Rogelio", "Ahmed", "Dominik", "Brendon", "Toby", "Kody", "Marquis", "Ulises", "Armani", "Adriel", "Alfonso", "Branden", "Will", "Craig", "Ibrahim", "Osvaldo", "Wade", "Harley", "Steve", "Davin", "Deshawn", "Kason", "Damion", "Jaylon", "Jefferson", "Aron", "Brooks", "Darian", "Gerald", "Rolando", "Terrence", "Enzo", "Kian", "Ryland", "Barrett", "Jaeden", "Ben", "Bradyn", "Giovani", "Blaine", "Madden", "Jerome", "Muhammad", "Ronnie", "Layne", "Kolby", "Leonard", "Vicente", "Cale", "Alessandro", "Zachery", "Gavyn", "Aydin", "Xzavier", "Malakai", "Raphael", "Cannon", "Rudy", "Asa", "Darrell", "Giancarlo", "Elisha", "Junior", "Zackery", "Alvaro", "Lewis", "Valentin", "Deacon", "Jase", "Harry", "Kendall", "Rashad", "Finnegan", "Mohammed", "Ramiro", "Cedric", "Brennen", "Santino", "Stanley", "Tyrone", "Chace", "Francis", "Johnathon", "Teagan", "Zechariah", "Alonso", "Kaeden", "Kamden", "Gilberto", "Ray", "Karter", "Luciano", "Nico", "Kole", "Aryan", "Draven", "Jamie", "Misael", "Lee", "Alexzander", "Camren", "Giovanny", "Amare", "Rhett", "Rhys", "Rodolfo", "Nash", "Markus", "Deven", "Mohammad", "Moshe", "Quintin", "Dwayne", "Memphis", "Atticus", "Davian", "Eugene", "Jax", "Antoine", "Wayne", "Randall", "Semaj", "Uriah", "Clark", "Aidyn", "Jorden", "Maxim", "Aditya", "Lawson", "Messiah", "Korbin", "Sullivan", "Freddy", "Demarcus", "Neil", "Brice", "King", "Davon", "Elvis", "Ace", "Dexter", "Heath", "Duncan", "Jamar", "Sincere", "Irvin", "Remington", "Kadin", "Soren", "Tyree", "Damarion", "Talan", "Adrien", "Gilbert", "Keenan", "Darnell", "Adolfo", "Tristian", "Derick", "Isai", "Rylee", "Gauge", "Harold", "Kareem", "Deangelo", "Agustin", "Coleman", "Zavier", "Lamar", "Emery", "Jaydin", "Devan", "Jordyn", "Mathias", "Prince", "Sage", "Seamus", "Jasiah", "Efrain", "Darryl", "Arjun", "Mike", "Roland", "Conrad", "Kamron", "Hamza", "Santos", "Frankie", "Dominique", "Marley", "Vance", "Dax", "Jamir", "Kylan", "Todd", "Maximo", "Jabari", "Matthias", "Haiden", "Luka", "Marcelo", "Keon", "Layton", "Tyrell", "Kash", "Raiden", "Cullen", "Donte", "Jovani", "Cordell", "Kasen", "Rory", "Alfred", "Darwin", "Ernest", "Bailey", "Gaige", "Hassan", "Jamarcus", "Killian", "Augustus", "Trevin", "Zain", "Ellis", "Rex", "Yusuf", "Bruno", "Jaidyn", "Justus", "Ronin", "Humberto", "Jaquan", "Josh", "Kasey", "Winston", "Dashawn", "Lucian", "Matias", "Sidney", "Ignacio", "Nigel", "Van", "Elian", "Finley", "Jaron", "Addison", "Aedan", "Braedon", "Jadyn", "Konner", "Zayne", "Franco", "Niko", "Savion", "Cristofer", "Deon", "Krish", "Anton", "Brogan", "Cael", "Coby", "Kymani", "Marcel", "Yair", "Dale", "Bo", "Jordon", "Samir", "Darien", "Zaire", "Ross", "Vaughn", "Devyn", "Kenyon", "Clay", "Dario", "Ishaan", "Jair", "Kael", "Adonis", "Jovanny", "Clinton", "Rey", "Chaim", "German", "Harper", "Nathen", "Rigoberto", "Sonny", "Glenn", "Octavio", "Blaze", "Keshawn", "Ralph", "Ean", "Nikhil", "Rayan", "Sterling", "Branson", "Jadiel", "Dillan", "Jeramiah", "Koen", "Konnor", "Antwan", "Houston", "Tyrese", "Dereon", "Leonidas", "Zack", "Fisher", "Jaydan", "Quinten", "Nick", "Urijah", "Darion", "Jovan", "Salvatore", "Beckham", "Jarrett", "Antony", "Eden", "Makai", "Zaiden", "Broderick", "Camryn", "Malaki", "Nikolai", "Howard", "Immanuel", "Demarion", "Valentino", "Jovanni", "Ayaan", "Ethen", "Leandro", "Royce", "Yael", "Yosef", "Jean", "Marquise", "Alden", "Leroy", "Gaven", "Jovany", "Tyshawn", "Aarav", "Kadyn", "Milton", "Zaid", "Kelton", "Tripp", "Kamren", "Slade", "Hezekiah", "Jakobe", "Nathanial", "Rishi", "Shamar", "Geovanni", "Pranav", "Roderick", "Bentley", "Clarence", "Lyric", "Bernard", "Carmelo", "Denzel", "Maximillian", "Reynaldo", "Cassius", "Gordon", "Reuben", "Samson", "Yadiel", "Jayvon", "Reilly", "Sheldon", "Abdullah", "Jagger", "Thaddeus", "Case", "Kyson", "Lamont", "Chaz", "Makhi", "Jan", "Marques", "Oswaldo", "Donavan", "Keyon", "Kyan", "Simeon", "Trystan", "Andreas", "Dangelo", "Landin", "Reagan", "Turner", "Arnav", "Brenton", "Callum", "Jayvion", "Bridger", "Sammy", "Deegan", "Jaylan", "Lennon", "Odin", "Abdiel", "Jerimiah", "Eliezer", "Bronson", "Cornelius", "Pierre", "Cortez", "Baron", "Carlo", "Carsen", "Fletcher", "Izayah", "Kolten", "Damari", "Hugh", "Jensen", "Yurem"]
@@ -143,7 +193,13 @@ export default function Home() {
         const docSnap = await getDoc(docRef)
   
         if (docSnap.exists()) {
-          setSaves(docSnap.data().saves.length)
+          var tempSaveNames = new Map<string, Map<string, string>>()
+          for(const key of Object.keys(docSnap.data().saves)){
+            tempSaveNames.set(key, new Map<string, string>([["team", docSnap.data().saves[key].team]]))
+          }
+          const entriesArray = Array.from(tempSaveNames.entries())
+          const sortedEntries = entriesArray.sort((a, b) => a[0].localeCompare(b[0]))
+          setSaves(new Map(sortedEntries))
         }
       } catch (err) {
         console.error("Error fetching document: ", err)
@@ -154,20 +210,156 @@ export default function Home() {
     }
   }, [firestore, user])
 
+  const handleSaveSelect = async (name: string) => {
+    //set app context to selected save data
+    const docRef = doc(firestore, "users", user!.uid)
+    const docSnap = await getDoc(docRef)
+    var save = docSnap.data()!.saves[name]
+    var rosterData = save.roster
+    var rosterMap = new Map<string, Player[]>()
+
+    for(const position of Object.keys(rosterData)){
+      rosterMap.set(position, new Array<Player>())
+      for(const player of rosterData[position]){
+        const playerName = player.name
+        const playerPosition = player.position
+        const contract = new Contract(player.contract.salary, player.contract.years, player.contract.endYear)
+
+        var careerStats = new Map<string, Map<string, Stats>>()
+        for(const year of Object.keys(player.careerStats)){
+          careerStats.set(year, new Map<string, Stats>())
+          for(const game of Object.keys(player.careerStats.year)){
+            const gameData = player.careerStats.year.game
+            careerStats.get(year)?.set(game, new Stats(
+              gameData.passingYD,
+              gameData.passingTD,
+              gameData.intsThrown,
+              gameData.passingATT,
+              gameData.completions,
+              gameData.rushingYD,
+              gameData.rushingTD,
+              gameData.rushingATT,
+              gameData.fumbles,
+              gameData.targets,
+              gameData.receptions,
+              gameData.receivingYD,
+              gameData.receivingTD,
+              gameData.blockWinRate,
+              gameData.sacksAllowed,
+              gameData.tackles,
+              gameData.sacks,
+              gameData.defensiveTD,
+              gameData.interceptions,
+              gameData.forcedFumbles,
+              gameData.fumbleRecoveries,
+              gameData.extraPointATT,
+              gameData.extraPointGood,
+              gameData.fieldGoalATT,
+              gameData.fieldGoalGood,
+              gameData.puntATT,
+              gameData.puntYD,
+              gameData.kickReturnATT,
+              gameData.kickReturnYD,
+              gameData.kickReturnTD,
+              gameData.puntReturnATT,
+              gameData.puntReturnYD,
+              gameData.puntReturnTD
+            ))
+          }
+        }
+        const injuryWeeks = player.injuryWeeks
+
+        const playerAttributes = player.attributes
+        var attributes = new Attributes(
+          playerAttributes.age,
+          playerAttributes.skill,
+          playerAttributes.speed,
+          playerAttributes.strength,
+          playerAttributes.endurance,
+          playerAttributes.skillPotential,
+          playerAttributes.speedPotential,
+          playerAttributes.strengthPotential,
+          playerAttributes.endurancePotential
+        )
+        const tempPlayer = new Player(playerName, playerPosition, contract, attributes)
+        tempPlayer.injuryWeeks = injuryWeeks
+        tempPlayer.stats = careerStats
+        rosterMap.get(position)?.push(tempPlayer)
+      }
+    }
+    setRoster(rosterMap)
+    setUsedNames(save.usedNames)
+    setSaveSelected(true)
+  }
+
+  const handleSwitchSave = () => {
+    //save changes to firebase
+    setRoster(new Map())
+    setUsedNames([])
+    setSaveSelected(false)
+  }
+
   if(user){
     return(
       <AppProvider>
-        <main>
+        <main className="flex flex-col min-h-screen">
           <Navbar/>
-          <div>
-            <input 
-              placeholder="Save Name" 
-              value={saveName} 
-              onChange={(e) => setSaveName(e.target.value)} 
-              className="w-32 p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-            />
-            <button className="bg-blue-500" onClick={setSavesDocument}>New Save</button>
-          </div>
+          {saveSelected && (
+            <div>
+              <button className="bg-blue-600 p-2 rounded" onClick={handleSwitchSave}>Switch Save</button>
+            </div>
+          )}
+          {!saveSelected && (
+            <div className="flex-grow flex flex-col items-center bg-gray-950">
+              <div className="grid grid-cols-4 gap-5 justify-items-center mx-auto my-5">
+                {Array.from(saves.keys()).map((name: string) => (
+                  <button key={name} className="bg-gray-800 mx-2 w-80 flex flex-col" onClick={() => {handleSaveSelect(name)}}>
+                    <span className="text-xl text-center bg-gray-700 w-full p-1">{name}</span>
+                    <span className="px-2 pt-1">Team: {saves.get(name)?.get("team")}</span>
+                    <span className="px-2 pt-1">Season: 1</span>
+                    <span className="px-2 py-1">Overall: 40</span>
+                  </button>
+                ))}
+              </div>
+              <div className="space-x-4 my-5">
+                <input 
+                  placeholder="Save Name" 
+                  value={saveName}
+                  maxLength={20}
+                  readOnly={showTeamPicker}
+                  onChange={(e) => {
+                    setSaveName(e.target.value) 
+                    setError(null)}
+                  } 
+                  className="w-60 p-2 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+                />
+                <button className="bg-green-600 p-2 rounded" onClick={openTeamPicker}>New Save</button>
+              </div>
+              {error === "saveError" && (
+                <h1 className="text-red-500">Save "{saveName}" already exists</h1>
+              )}
+              {showTeamPicker && (
+                <div>
+                  <h1 className="text-2xl text-center">Select Team</h1>
+                  <div className="grid grid-cols-8 gap-4 my-5">
+                    {Array.from(teamsList).map((team: string) => (
+                      <button key={team} onClick={() => {setSelectedTeam(team); setError(null)}} 
+                        className={`p-1 border-2 rounded ${selectedTeam == team ? "border-blue-500" : "border-gray-800"}`}>
+                        {team}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="space-x-4 flex justify-center mb-5">
+                    <button className="bg-red-600 p-2 rounded w-24" onClick={() => {setShowTeamPicker(false); setSelectedTeam(null); setSaveName("")}}>Cancel</button>
+                    <button className="bg-green-600 p-2 rounded w-24" onClick={setSavesDocument}>Confirm</button>
+                  </div>
+                  {error === "noSelectionError" && (
+                    <h1 className="text-red-500 text-center mt-2">Must select a team</h1>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </AppProvider>
     )
