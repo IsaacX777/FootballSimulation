@@ -146,17 +146,19 @@ export default function Home() {
       }
       const randomFactor = (Math.random() * 10) + 1
       if(randomFactor > 5){
-        rawSalary *= 1 + (randomFactor - 5) / 20
+        rawSalary *= 1 + (randomFactor - 5) / 50
       }
       else{
-        rawSalary *= 1 - randomFactor / 20
+        rawSalary *= 1 - randomFactor / 50
       }
-      const years = (Math.random() * 5) + 1
+      const years = Math.floor(Math.random() * 5) + 1
       contract = new Contract(Math.round(rawSalary / 10000) * 10000, years, 2024 + years)
       generatedPlayers.push(new Player(name, position, contract, attributes))
     }
     return generatedPlayers.sort((a, b) => b.attributes.overall - a.attributes.overall)
   }
+
+  const positionOrder = ["QB", "WR", "RB", "TE", "OL", "DL", "LB", "CB", "S", "K", "P"]
 
   const defaultRoster: Map<string, Player[]> = new Map([
       ["QB", generatePlayers("QB", 2)],
@@ -287,7 +289,15 @@ export default function Home() {
         rosterMap.get(position)?.push(tempPlayer)
       }
     }
-    setRoster(rosterMap)
+    const entriesArray = Array.from(rosterMap.entries())
+    const sortedEntries = entriesArray.sort((a, b) => {
+      const positionA = a[0]
+      const positionB = b[0]
+      const indexA = positionOrder.indexOf(positionA)
+      const indexB = positionOrder.indexOf(positionB)
+      return indexA - indexB
+    })
+    setRoster(new Map(sortedEntries))
     setUsedNames(save.usedNames)
     setSaveSelected(true)
   }
