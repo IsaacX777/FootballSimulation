@@ -36,6 +36,15 @@ export default class Player{
     public get injuryWeeks(): number{
         return this._injuryWeeks
     }
+    public get injuryWeeksString(): string{
+        return this._injuryWeeks === 0 ? "N/A" : this._injuryWeeks + " weeks"
+    }
+    public get contractString(): string{
+        if(this._contract.years === 1){
+            return this._contract.salary > 1000000 ? "$" + this._contract.salary/1000000 + "M for " + this._contract.years + " year" : "$" + this._contract.salary/1000 + "K for " + this._contract.years + " year"
+        }
+        return this._contract.salary > 1000000 ? "$" + this._contract.salary/1000000 + "M for " + this._contract.years + " years" : "$" + this._contract.salary/1000 + "K for " + this._contract.years + " years"
+    }
     public set name(value: string){
         this._name = value
     }

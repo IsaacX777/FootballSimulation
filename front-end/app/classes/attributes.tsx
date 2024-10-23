@@ -66,12 +66,15 @@ export default class Attributes{
     public get endurancePotential(): number{
         return this._endurancePotential
     }
+    public get expString(): string{
+        return this._exp + " / " + Math.round(100 * 1.1**(this._level - 1))
+    }
     public set age(value: number){
         this._age = value
     }
     public checkLevel(){
-        if(this._exp >= 100 * 1.1**(this._level - 1)){
-            this._exp -= 100 * 1.1**(this._level - 1)
+        if(this._exp >= Math.round(100 * 1.1**(this._level - 1))){
+            this._exp -= Math.round(100 * 1.1**(this._level - 1))
             this._level ++
             this._skill += (this._skillPotential - this._skill) / 9
             this._speed += (this._speedPotential - this._speed) / 9

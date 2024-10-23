@@ -3,7 +3,7 @@ import { useState } from "react"
 import Player from "../classes/player"
 import { useTable, Column } from "react-table"
 
-export default function Playerlist() {
+export default function StarterList() {
     const defaultOpenPosition = new Map([
         ["QB", true],
         ["WR", true],
@@ -29,7 +29,6 @@ export default function Playerlist() {
 
     const columns: Column<Player>[] = [
         {
-            //make this a link to a player page
             Header: "Name",
             accessor: "name",
         },

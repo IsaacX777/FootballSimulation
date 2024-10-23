@@ -30,7 +30,7 @@ export default function Roster() {
     <main>
       <Navbar/>
       <h1 className="text-xl px-4 pt-2">Roster Size: {rosterSize} / 53</h1>
-      <h1 className={`text-xl px-4 pb-1 ${totalSalary! < 250000000 ? "text-green-500" : totalSalary! < 300000000 ? "text-yellow-500" : "text-red-500"}`}>Salary Cap: {totalSalary!/1000000}M / 300M</h1>
+      <h1 className={`text-xl px-4 pb-2 ${totalSalary! < 250000000 ? "text-green-500" : totalSalary! < 300000000 ? "text-yellow-500" : "text-red-500"}`}>Salary Cap: {totalSalary!/1000000}M / 300M</h1>
       <Playerlist/>
     </main>
   )

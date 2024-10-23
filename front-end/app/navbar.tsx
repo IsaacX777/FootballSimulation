@@ -28,7 +28,10 @@ export default function Navbar() {
                         {playOpen && (
                             <div className="absolute bg-gray-700 text-white shadow-lg w-32" onMouseEnter={() => setPlayOpen(true)} onMouseLeave={() => setPlayOpen(false)}>
                                 <Link className="block w-full text-left px-4 py-1 hover:bg-gray-600" href="/roster">Roster</Link>
+                                <Link className="block w-full text-left px-4 py-1 hover:bg-gray-600" href="/starters">Starters</Link>
                                 <Link className="block w-full text-left px-4 py-1 hover:bg-gray-600" href="/schedule">Schedule</Link>
+                                <Link className="block w-full text-left px-4 py-1 hover:bg-gray-600" href="/free-agents">Free Agents</Link>
+                                <Link className="block w-full text-left px-4 py-1 hover:bg-gray-600" href="/trade">Trade</Link>
                             </div>
                         )}
                     </div>
