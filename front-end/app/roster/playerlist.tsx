@@ -2,6 +2,7 @@ import { useAppContext } from "@/app/context"
 import { useState } from "react"
 import Player from "../classes/player"
 import { useTable, Column } from "react-table"
+import { useRouter } from "next/navigation"
 
 export default function Playerlist() {
     const defaultOpenPosition = new Map([
@@ -27,52 +28,61 @@ export default function Playerlist() {
         setOpenPosition(tempMap)
     }
 
-    const columns: Column<Player>[] = [
+    const columns: Column<{ name: string; player: Player }>[] = [
         {
-            //make this a link to a player page
             Header: "Name",
             accessor: "name",
+            Cell: ({ row }) => {
+                const router = useRouter()
+          
+                const handlePlayerClick = () => {
+                    router.push(`/players/${row.original.name.toLowerCase().replace(" ", "-")}`)
+                }
+                return (
+                    <span onClick={handlePlayerClick} className="hover:underline cursor-pointer">{row.original.name}</span>
+                )
+            }
         },
         {
             Header: "Age",
-            accessor: (player: Player) => player.attributes.age,
+            accessor: (row) => row.player.attributes.age,
         },
         {
             Header: "Skill",
-            accessor: (player: Player) => player.attributes.skill,
+            accessor: (row) => row.player.attributes.skill,
         },
         {
             Header: "Speed",
-            accessor: (player: Player) => player.attributes.speed,
+            accessor: (row) => row.player.attributes.speed,
         },
         {
             Header: "Strength",
-            accessor: (player: Player) => player.attributes.strength,
+            accessor: (row) => row.player.attributes.strength,
         },
         {
             Header: "Endurance",
-            accessor: (player: Player) => player.attributes.endurance,
+            accessor: (row) => row.player.attributes.endurance,
         },
         {
             Header: "Overall",
-            accessor: (player: Player) => player.attributes.overall,
+            accessor: (row) => row.player.attributes.overall,
         },
         {
             Header: "Level",
-            accessor: (player: Player) => player.attributes.level,
+            accessor: (row) => row.player.attributes.level,
         },
         {
             Header: "EXP",
-            accessor: (player: Player) => player.attributes.expString,
+            accessor: (row) => row.player.attributes.expString,
         },
         {
             Header: "Contract",
-            accessor: "contractString",
+            accessor: (row) => row.player.contractString,
         },
         {
             Header: "Injury",
-            accessor: "injuryWeeksString",
-        },
+            accessor: (row) => row.player.injuryWeeksString,
+        }
     ]
 
 
@@ -83,7 +93,7 @@ export default function Playerlist() {
                     <button onClick={() => togglePosition(position)} className="bg-gray-800 w-full h-10 mb-1">{position}</button>
                     {openPosition.get(position) && (
                         <div>
-                            <PlayerTable players={roster.get(position) || []} columns={columns} />
+                            <PlayerTable players={Array.from(roster.get(position)!.entries()).map(([name, player]) => ({name, player})) || []} columns={columns}/>
                         </div>
                     )}
                 </div>
@@ -92,7 +102,7 @@ export default function Playerlist() {
     )
 }
 
-function PlayerTable({ players, columns }: { players: Player[]; columns: Column<Player>[] }) {
+function PlayerTable({ players, columns }: { players: { name: string; player: Player }[]; columns: Column<{ name: string; player: Player }>[] }) {
     const data = players;
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
         columns,

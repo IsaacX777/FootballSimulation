@@ -12,8 +12,8 @@ export default function Roster() {
     let totalPlayers = 0
     let totalSalary = 0
     for(const positionList of roster.values()){
-      totalPlayers += positionList.length
-      for(const player of positionList){
+      totalPlayers += positionList.size
+      for(const [playerName, player] of positionList){
         totalSalary += player.contract.salary
       }
     }

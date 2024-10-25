@@ -3,23 +3,18 @@ import Stats from "./stats"
 import Attributes from "./attributes"
 
 export default class Player{
-    private _name: string
     private _position: string
     private _contract: Contract
     private _stats: Map<string, Map<string, Stats>>
     private _injuryWeeks: number
     private _attributes: Attributes
 
-    public constructor(name: string, position: string, contract: Contract, attributes: Attributes){
-        this._name = name
+    public constructor(position: string, contract: Contract, attributes: Attributes){
         this._position = position
         this._contract = contract
         this._attributes = attributes
         this._stats = new Map<string, Map<string, Stats>>()
         this._injuryWeeks = 0
-    }
-    public get name(): string{
-        return this._name
     }
     public get position(): string{
         return this._position
@@ -44,9 +39,6 @@ export default class Player{
             return this._contract.salary > 1000000 ? "$" + this._contract.salary/1000000 + "M for " + this._contract.years + " year" : "$" + this._contract.salary/1000 + "K for " + this._contract.years + " year"
         }
         return this._contract.salary > 1000000 ? "$" + this._contract.salary/1000000 + "M for " + this._contract.years + " years" : "$" + this._contract.salary/1000 + "K for " + this._contract.years + " years"
-    }
-    public set name(value: string){
-        this._name = value
     }
     public set position(value: string){
         this._position = value
@@ -81,7 +73,6 @@ export default class Player{
             )
         }
         return{
-            name: this._name,
             position: this._position,
             contract: this._contract.toObject(),
             careerStats: convertStats(this.stats),
