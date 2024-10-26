@@ -18,11 +18,11 @@ export default function Navbar() {
     return(
         <nav className="bg-gray-800">
             <div className="container mx-auto flex justify-between">
-                <Link className="text-center text-xl text-white font-semibold p-2" href="/">Football Simulation</Link>
+                <Link className="text-center text-xl text-white font-semibold p-2 ml-3" href="/">Football Simulation</Link>
                 <div className="flex">
                     <div className="relative">
                         <button className="hover:bg-gray-500 h-full px-2" onMouseEnter={() => setPlayOpen(true)} onMouseLeave={() => setPlayOpen(false)}>
-                            <span className="mr-2">Play</span>
+                            <span className="mr-2 text-white">Play</span>
                             <FontAwesomeIcon icon={faChevronDown} className="text-white"/>
                         </button>
                         {playOpen && (
@@ -38,7 +38,7 @@ export default function Navbar() {
                     <div className="relative">
                         <button className="hover:bg-gray-500 h-full px-2" onMouseEnter={() => setFileOpen(true)} onMouseLeave={() => setFileOpen(false)}>
                             <FontAwesomeIcon icon={faUser} className="text-white"/>
-                            <span className="ml-1 mr-2">{user? user.displayName : "Guest"}</span>
+                            <span className="ml-1 mr-2 text-white">{user? user.displayName : "Guest"}</span>
                             <FontAwesomeIcon icon={faChevronDown} className="text-white"/>
                         </button>
                         {fileOpen && !user && (

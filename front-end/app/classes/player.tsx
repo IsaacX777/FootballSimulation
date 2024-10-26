@@ -8,13 +8,15 @@ export default class Player{
     private _stats: Map<string, Map<string, Stats>>
     private _injuryWeeks: number
     private _attributes: Attributes
+    private _isStarter: boolean
 
-    public constructor(position: string, contract: Contract, attributes: Attributes){
+    public constructor(position: string, contract: Contract, attributes: Attributes, stats: Map<string, Map<string, Stats>>, injuryWeeks: number, isStarter: boolean){
         this._position = position
         this._contract = contract
         this._attributes = attributes
-        this._stats = new Map<string, Map<string, Stats>>()
-        this._injuryWeeks = 0
+        this._stats = stats
+        this._injuryWeeks = injuryWeeks
+        this._isStarter = isStarter
     }
     public get position(): string{
         return this._position
@@ -30,6 +32,9 @@ export default class Player{
     }
     public get injuryWeeks(): number{
         return this._injuryWeeks
+    }
+    public get isStarter(): boolean{
+        return this._isStarter
     }
     public get injuryWeeksString(): string{
         return this._injuryWeeks === 0 ? "N/A" : this._injuryWeeks + " weeks"
@@ -51,6 +56,9 @@ export default class Player{
     }
     public set stats(value: Map<string, Map<string, Stats>>){
         this._stats = value
+    }
+    public set isStarter(value: boolean){
+        this._isStarter = value
     }
     public addStats(value: Stats, season: string, opponent: string){
         if(!this._stats.has(season)){
@@ -77,7 +85,8 @@ export default class Player{
             contract: this._contract.toObject(),
             careerStats: convertStats(this.stats),
             injuryWeeks: this._injuryWeeks,
-            attributes: this._attributes.toObject()
+            attributes: this._attributes.toObject(),
+            isStarter: this._isStarter
         }
     }
 }
