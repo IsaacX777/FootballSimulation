@@ -19,7 +19,7 @@ export default function Playerlist() {
         ["P", true]
     ])
 
-    const {roster, setRoster, starters, setStarters} = useAppContext()
+    const {roster, setRoster} = useAppContext()
     const [openPosition, setOpenPosition] = useState<Map<string, boolean>>(defaultOpenPosition)
 
     const togglePosition = (position: string) => {

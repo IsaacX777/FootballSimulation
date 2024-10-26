@@ -3,8 +3,7 @@ import { AppProvider } from "./context"
 import Navbar from "./navbar"
 import {useAuthState} from "react-firebase-hooks/auth"
 import {auth} from '../firebase/config'
-import {useCollection} from "react-firebase-hooks/firestore"
-import { collection, getFirestore, setDoc, getDoc, doc, updateDoc } from "firebase/firestore"
+import { getFirestore, setDoc, getDoc, doc, updateDoc } from "firebase/firestore"
 import Player from "./classes/player"
 import Contract from "./classes/contract"
 import Attributes from "./classes/attributes"
@@ -15,15 +14,13 @@ import Stats from "./classes/stats"
 export default function Home() {
   const [user] = useAuthState(auth)
   const firestore = getFirestore()
-  const [users, usersLoading, usersError] = useCollection(collection(firestore, "users"), {
-    snapshotListenOptions: { includeMetadataChanges: true },
-  })
   const [saves, setSaves] = useState<Map<string, Map<string, string>>>(new Map())
   const [saveName, setSaveName] = useState("")
   const [error, setError] = useState<string|null>(null)
   const [showTeamPicker, setShowTeamPicker] = useState(false)
   const {teams, roster, setRoster, playerDictionary, setPlayerDictionary, selectedSave, setSelectedSave} = useAppContext()
   const [selectedTeam, setSelectedTeam] = useState<string|null>(null)
+  const [showRecord, setShowRecord] = useState(true)
 
   const openTeamPicker = () => {
     if(Array.from(saves.keys()).includes(saveName)){
@@ -121,15 +118,15 @@ export default function Home() {
     const starterAmounts = new Map([
       ["QB", 1],
       ["WR", 2],
-      ["RB", 1],
+      ["RB", 2],
       ["TE", 1],
-      ["OL", 6],
+      ["OL", 5],
       ["DL", 4],
       ["LB", 3],
       ["CB", 2],
       ["S", 2],
       ["K", 1],
-      ["P", 1],
+      ["P", 1]
     ])
     for(const position of defaultRoster.keys()){
       const playerList = Array.from(defaultRoster.get(position)?.keys()!).slice(0, starterAmounts.get(position))
@@ -137,6 +134,28 @@ export default function Home() {
         defaultRoster.get(position)!.get(playerName)!.isStarter = true
       }
     }
+    /*var selectedConference = ""
+    var selectedDivision = ""
+    for(const conference of teams.keys()){
+      for(const division of teams.get(conference)!.keys()){
+        if(teams.get(conference)?.get(division)?.includes(selectedTeam)){
+          selectedConference = conference
+          selectedDivision = division
+          break
+        }
+      }
+    }
+    var schedule = new Map<number, Map<string, string>>()
+    var divisionArray = Array.from(teams.get(selectedConference)?.get(selectedDivision)!).filter((team) => team !== selectedTeam)
+    for(let i = 0; i < 3; i++){
+      let home = Math.floor(Math.random() * 2) + 1
+      schedule.set(i + 1, new Map([[`${home == 1 ? "vs " + divisionArray[i] : "@ " + divisionArray[i]}`, ""]]))
+      schedule.set(i + 16, new Map([[`${home == 1 ? "@ " + divisionArray[i] : "vs " + divisionArray[i]}`, ""]]))
+    }
+    var conferenceArray = Array.from(teams.get(selectedConference)!.keys()).filter((division) => division !== selectedDivision)
+    for(let i = 0; i < 3; i++){
+      
+    }*/
 
     const convertRoster = (map: Map<string, Map<string, Player>>) => {
       return Object.fromEntries(
@@ -347,10 +366,39 @@ export default function Home() {
           <Navbar/>
           {roster.size > 0 && (
             <div>
-              <div className="container mx-auto flex p-5 items-center justify-between">
+              <div className="container mx-auto flex px-8 py-3 items-center justify-between">
                 <h1 className="text-2xl text-center">{selectedSave}</h1>
                 <button className="bg-blue-600 p-2 rounded" onClick={handleSwitchSave}>Exit Save</button>
               </div>
+              <div className="ml-8 mb-3">
+                <button onClick={() => setShowRecord(true)} className={`${showRecord ? "bg-blue-500" : "bg-gray-800"} p-1`}>Show Record</button>
+                <button onClick={() => setShowRecord(false)} className={`${!showRecord ? "bg-blue-500" : "bg-gray-800"} p-1`}>Show Overall</button>
+              </div>
+              {Array.from(teams.keys()).map((conference: string) => (
+                <div className="grid grid-cols-4 gap-6 px-8 pb-6">
+                  {Array.from(teams.get(conference)!.keys()).map((division:string) => (
+                    <div key={conference + division} className="border-2 border-blue-500 text-center rounded-lg">
+                      <h1 className="text-xl p-1">{conference} {division}</h1>
+                      <div className="p-2 mx-2 mb-1">
+                        {Array.from(teams.get(conference)?.get(division)!).map((team: string) => (
+                          <div className="justify-between flex text-l">
+                            <h1>{team}</h1>
+                            {showRecord && (
+                              <div className="flex space-x-4">
+                                <h1 className="text-green-500">W0</h1>
+                                <h1>0 - 0</h1>
+                              </div>
+                            )}
+                            {!showRecord && (
+                              <h1>30</h1>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
           )}
           {roster.size === 0 && (
